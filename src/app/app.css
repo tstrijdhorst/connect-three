@@ -1,0 +1,19 @@
+ul {
+    margin: 0;
+    list-style: none;
+    overflow: hidden;
+    background-color: aqua;
+}
+
+a {
+    color: black;
+    font-weight: bold;
+}
+
+li {
+    float: left;
+}
+
+li:not(:first-child) {
+    padding-left: 30px;
+}
