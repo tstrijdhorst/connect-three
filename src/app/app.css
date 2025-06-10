@@ -1,3 +1,9 @@
+div.parent-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 ul {
     margin: 0;
     list-style: none;

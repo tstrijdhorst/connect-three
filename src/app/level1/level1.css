@@ -1,0 +1,25 @@
+table.tictactoe-board {
+    border-collapse: collapse;
+}
+
+table.tictactoe-board td {
+    --side-length: 75px;
+
+    border: 1px solid black;
+    width: var(--side-length);
+    height: var(--side-length);
+}
+
+td {
+    font-size: 50px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+td.occupied-X {
+    background-color: aquamarine;
+}
+
+td.occupied-O {
+    background-color: violet;
+}
