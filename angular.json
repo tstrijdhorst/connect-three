@@ -23,6 +23,8 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "server": false,
+            "prerender": false,
             "browser": "src/main.ts",
             "baseHref": "/connect-three/",
             "outputPath": "docs",
