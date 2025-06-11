@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/signals';
+import { GameState } from './game-state.model';
+import { GameStateService } from '../game-state-service';
 
 @Component({
   selector: 'app-level2',
@@ -7,25 +9,20 @@ import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/sign
   templateUrl: './level2.html',
   styleUrl: './level2.css'
 })
-export class Level2 {
-  private currentPlayerIndex!: number
-  private playerNames: string[];
-  private boardContent!: number[][]
+export class Level2 implements OnInit {
+  private playerNames = ['', 'X', 'O'];
+  private state!: GameState;
 
-  constructor() {
-    this.playerNames = ['', 'X', 'O']
+  constructor(private gameStateService: GameStateService) {
+  }
 
-    this.initializeGame();
+  ngOnInit(): void {
+    this.state = this.gameStateService.getState();
   }
 
   public initializeGame() {
-    this.boardContent = [
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-    ];
-
-    this.currentPlayerIndex = 1;
+    this.state = this.gameStateService.getDefaultState();
+    this.gameStateService.saveState(this.state);
   }
 
   public getPlayerName(row: number, column: number): string {
@@ -44,17 +41,18 @@ export class Level2 {
     if (this.hasWinner()) {
       return
     }
-    if (this.boardContent[row][column] !== 0) {
+    if (this.state.boardContent[row][column] !== 0) {
       return
     }
 
     this.setOccupyingPlayerIndex(row, column);
 
     this.toggleCurrentPlayerIndex();
+    this.gameStateService.saveState(this.state);
   }
 
   private toggleCurrentPlayerIndex() {
-    this.currentPlayerIndex = this.currentPlayerIndex === 1 ? 2 : 1;
+    this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
   }
 
   public getWinnerPlayerName(): string {
@@ -66,7 +64,7 @@ export class Level2 {
       return false;
     }
 
-    return !this.boardContent.some(row => row.includes(0));
+    return !this.state.boardContent.some(row => row.includes(0));
   }
 
   public hasWinner(): boolean {
@@ -116,10 +114,10 @@ export class Level2 {
   }
 
   private getOccupyingPlayerIndex(row: number, column: number) {
-    return this.boardContent[row][column];
+    return this.state.boardContent[row][column];
   }
 
   private setOccupyingPlayerIndex(row: number, column: number) {
-    this.boardContent[row][column] = this.currentPlayerIndex;
+    this.state.boardContent[row][column] = this.state.currentPlayerIndex;
   }
 }
