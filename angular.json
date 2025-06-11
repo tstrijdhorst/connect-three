@@ -27,7 +27,10 @@
             "prerender": false,
             "browser": "src/main.ts",
             "baseHref": "/connect-three/",
-            "outputPath": "docs",
+            "outputPath": {
+              "base": "docs",
+              "browser": ""
+            },
             "polyfills": [
               "zone.js"
             ],
