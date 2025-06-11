@@ -24,6 +24,8 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "baseHref": "/connect-three/",
+            "outputPath": "docs",
             "polyfills": [
               "zone.js"
             ],
