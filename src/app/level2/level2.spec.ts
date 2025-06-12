@@ -7,21 +7,17 @@ describe('Level2', () => {
   let mockGameStateService: jasmine.SpyObj<GameStateService>;
 
   beforeEach(() => {
-    mockGameStateService = jasmine.createSpyObj<GameStateService>('GameStateService', [
-      'getState',
-      'getDefaultState',
-      'saveState'
-    ]);
+    // Create a real instance of the service
+    const gameStateService = new GameStateService();
 
-    mockGameStateService.getDefaultState.and.returnValue({
-        version: 1,
-      boardContent: [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
-      ],
-      currentPlayerIndex: 1
-    });
+    // Spy on the real service, allowing getDefaultState to use its actual implementation
+    mockGameStateService = jasmine.createSpyObj<GameStateService>(
+      'GameStateService', 
+      ['getState', 'saveState'], // Only mock these methods
+      { 
+        getDefaultState: gameStateService.getDefaultState.bind(gameStateService) // Use real implementation
+      }
+    );
 
     component = new Level2(mockGameStateService);
     component.initializeGame();
