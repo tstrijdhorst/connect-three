@@ -3,6 +3,11 @@ import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/sign
 import { GameState } from './game-state.model';
 import { GameStateService } from '../game-state-service';
 
+export interface Square {
+  row: number,
+  column: number,
+}
+
 @Component({
   selector: 'app-level2',
   standalone: false,
@@ -55,8 +60,14 @@ export class Level2 implements OnInit {
     this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
   }
 
-  public getWinnerPlayerName(): string {
-    return this.playerNames[this.getWinnerPlayerIndex()];
+  public getWinnerPlayerName(): string|null {
+    const winningPlayerIndex = this.getWinnerPlayerIndex();
+
+    if (winningPlayerIndex === null) {
+      return null;
+    }
+
+    return this.playerNames[winningPlayerIndex];
   }
 
   public isStaleMate(): boolean {
@@ -68,50 +79,57 @@ export class Level2 implements OnInit {
   }
 
   public hasWinner(): boolean {
-    return this.getWinnerPlayerIndex() !== 0;
+    return this.getWinnerPlayerIndex() !== null;
   }
 
-  private getWinnerPlayerIndex(): number {
-    //Horizontal
-    if (this.getOccupyingPlayerIndex(0,0) === this.getOccupyingPlayerIndex(0,1)
-      && this.getOccupyingPlayerIndex(0,1) === this.getOccupyingPlayerIndex(0,2)) {
-        return this.getOccupyingPlayerIndex(0,0)
-    }
-    if (this.getOccupyingPlayerIndex(1,0) === this.getOccupyingPlayerIndex(1,1)
-      && this.getOccupyingPlayerIndex(1,1) === this.getOccupyingPlayerIndex(1,2)) {
-        return this.getOccupyingPlayerIndex(1,0)
-    }
-    if (this.getOccupyingPlayerIndex(2,0) === this.getOccupyingPlayerIndex(2,1)
-      && this.getOccupyingPlayerIndex(2,1) === this.getOccupyingPlayerIndex(2,2)) {
-        return this.getOccupyingPlayerIndex(2,0)
-    }
+  private findPlayerIfEqualIn3Squares(
+    square1: Square,
+    square2: Square,
+    square3: Square,
+  ): number | null {
+    const player1 = this.getOccupyingPlayerIndex(square1.row, square1.column);
+    const player2 = this.getOccupyingPlayerIndex(square2.row, square2.column);
+    const player3 = this.getOccupyingPlayerIndex(square3.row, square3.column);
 
-    //Vertical
-    if (this.getOccupyingPlayerIndex(0,0) === this.getOccupyingPlayerIndex(1,0)
-      && this.getOccupyingPlayerIndex(1,0) === this.getOccupyingPlayerIndex(2,0)) {
-        return this.getOccupyingPlayerIndex(0,0)
-    }
-    if (this.getOccupyingPlayerIndex(0,1) === this.getOccupyingPlayerIndex(1,1)
-      && this.getOccupyingPlayerIndex(1,1) === this.getOccupyingPlayerIndex(2,1)) {
-        return this.getOccupyingPlayerIndex(0,1)
-    }
-    if (this.getOccupyingPlayerIndex(0,2) === this.getOccupyingPlayerIndex(1,2)
-      && this.getOccupyingPlayerIndex(1,2) === this.getOccupyingPlayerIndex(2,2)) {
-        return this.getOccupyingPlayerIndex(0,2)
-    }
+    const allSquaresMatch = player1 === player2 && player2 === player3;
+    const squareNotEmpty = player1 !== 0;
 
-    //Diagonal
-    if (this.getOccupyingPlayerIndex(0,0) === this.getOccupyingPlayerIndex(1,1)
-      && this.getOccupyingPlayerIndex(1,1) === this.getOccupyingPlayerIndex(2,2)) {
-        return this.getOccupyingPlayerIndex(0,0)
-    }
-    if (this.getOccupyingPlayerIndex(0,2) === this.getOccupyingPlayerIndex(1,1)
-      && this.getOccupyingPlayerIndex(1,1) === this.getOccupyingPlayerIndex(2,0)) {
-        return this.getOccupyingPlayerIndex(0,2)
-    }
-
-    return 0;
+    return allSquaresMatch && squareNotEmpty ? player1 : null;
   }
+
+  private getWinnerPlayerIndex(): number | null {
+    // Define all possible winning combinations
+    const winningCombinations = [
+      // Horizontal
+      [{ row: 0, column: 0 }, { row: 0, column: 1 }, { row: 0, column: 2 }],
+      [{ row: 1, column: 0 }, { row: 1, column: 1 }, { row: 1, column: 2 }],
+      [{ row: 2, column: 0 }, { row: 2, column: 1 }, { row: 2, column: 2 }],
+
+      // Vertical
+      [{ row: 0, column: 0 }, { row: 1, column: 0 }, { row: 2, column: 0 }],
+      [{ row: 0, column: 1 }, { row: 1, column: 1 }, { row: 2, column: 1 }],
+      [{ row: 0, column: 2 }, { row: 1, column: 2 }, { row: 2, column: 2 }],
+
+      // Diagonal
+      [{ row: 0, column: 0 }, { row: 1, column: 1 }, { row: 2, column: 2 }],
+      [{ row: 0, column: 2 }, { row: 1, column: 1 }, { row: 2, column: 0 }]
+    ];
+
+    // Check each combination
+    for (const combination of winningCombinations) {
+      const winner = this.findPlayerIfEqualIn3Squares(
+        combination[0],
+        combination[1],
+        combination[2]
+      );
+      if (winner !== null) {
+        return winner;
+      }
+    }
+
+    return null;
+  }
+
 
   private getOccupyingPlayerIndex(row: number, column: number) {
     return this.state.boardContent[row][column];
