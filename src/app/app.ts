@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrl: './app.css'
 })
 export class App {
-  protected title = 'ConnectThree';
+  public title = 'TIC TAC TOE BABY';
 }
