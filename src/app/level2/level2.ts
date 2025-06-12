@@ -72,14 +72,6 @@ export class Level2 implements OnInit {
     this.gameStateService.saveState(this.state);
   }
 
-  private getCurrentPlayer(): Player {
-    return this.getPlayerById(this.state.currentPlayerIndex);
-  }
-
-  private toggleCurrentPlayerIndex() {
-    this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
-  }
-
   public getWinnerPlayerName(): string | undefined {
     return this.getWinningPlayer()?.name;
   }
@@ -154,6 +146,14 @@ export class Level2 implements OnInit {
     }
 
     return this.getPlayerById(this.state.boardContent[square.row][square.column]);
+  }
+
+  private getCurrentPlayer(): Player {
+    return this.getPlayerById(this.state.currentPlayerIndex);
+  }
+
+  private toggleCurrentPlayerIndex() {
+    this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
   }
 
   private getPlayerById(id: number): Player {
