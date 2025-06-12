@@ -8,6 +8,11 @@ export interface Square {
   column: number,
 }
 
+export interface Player {
+  id: number,
+  name: string,
+}
+
 @Component({
   selector: 'app-level2',
   standalone: false,
@@ -17,8 +22,13 @@ export interface Square {
 export class Level2 implements OnInit {
   private playerNames = ['', 'X', 'O'];
   private state!: GameState;
+  private players: Player[];
 
   constructor(private gameStateService: GameStateService) {
+    this.players = [
+      { id: 1, name: 'X' },
+      { id: 2, name: 'O' }
+    ];
   }
 
   ngOnInit(): void {
@@ -30,44 +40,48 @@ export class Level2 implements OnInit {
     this.gameStateService.saveState(this.state);
   }
 
-  public getPlayerName(row: number, column: number): string {
-    return this.playerNames[this.getOccupyingPlayerIndex(row, column)]
-  }
+  public getPlayerName(square: Square): string {
+    const nameOrNull = this.getOccupyingPlayer(square)?.name
 
-  public getClassName(row: number, column: number): string {
-    if (this.getOccupyingPlayerIndex(row, column) === 0) {
+    if (nameOrNull === undefined) {
       return ''
     }
 
-    return `occupied-${this.getPlayerName(row, column)}`
+    return nameOrNull;
   }
 
-  public set(row: number, column: number): void {
+  public getClassName(square: Square): string {
+    if (this.getOccupyingPlayer(square) === null) {
+      return ''
+    }
+
+    return `occupied-${this.getPlayerName(square)}`
+  }
+
+  public set(square: Square): void {
     if (this.hasWinner()) {
       return
     }
-    if (this.state.boardContent[row][column] !== 0) {
+    if (this.isOccupied(square)) {
       return
     }
 
-    this.setOccupyingPlayerIndex(row, column);
+    this.setOccupyingPlayer(square, this.getCurrentPlayer());
 
     this.toggleCurrentPlayerIndex();
     this.gameStateService.saveState(this.state);
+  }
+
+  private getCurrentPlayer(): Player {
+    return this.getPlayerById(this.state.currentPlayerIndex);
   }
 
   private toggleCurrentPlayerIndex() {
     this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
   }
 
-  public getWinnerPlayerName(): string|null {
-    const winningPlayerIndex = this.getWinnerPlayerIndex();
-
-    if (winningPlayerIndex === null) {
-      return null;
-    }
-
-    return this.playerNames[winningPlayerIndex];
+  public getWinnerPlayerName(): string | undefined {
+    return this.getWinningPlayer()?.name;
   }
 
   public isStaleMate(): boolean {
@@ -79,25 +93,25 @@ export class Level2 implements OnInit {
   }
 
   public hasWinner(): boolean {
-    return this.getWinnerPlayerIndex() !== null;
+    return this.getWinningPlayer() !== null;
   }
 
   private findPlayerIfEqualIn3Squares(
     square1: Square,
     square2: Square,
     square3: Square,
-  ): number | null {
-    const player1 = this.getOccupyingPlayerIndex(square1.row, square1.column);
-    const player2 = this.getOccupyingPlayerIndex(square2.row, square2.column);
-    const player3 = this.getOccupyingPlayerIndex(square3.row, square3.column);
+  ): Player | null {
+    const player1 = this.getOccupyingPlayer(square1);
+    const player2 = this.getOccupyingPlayer(square2);
+    const player3 = this.getOccupyingPlayer(square3);
 
     const allSquaresMatch = player1 === player2 && player2 === player3;
-    const squareNotEmpty = player1 !== 0;
+    const squareNotEmpty = player1 !== null;
 
     return allSquaresMatch && squareNotEmpty ? player1 : null;
   }
 
-  private getWinnerPlayerIndex(): number | null {
+  private getWinningPlayer(): Player | null {
     // Define all possible winning combinations
     const winningCombinations = [
       // Horizontal
@@ -130,12 +144,23 @@ export class Level2 implements OnInit {
     return null;
   }
 
-
-  private getOccupyingPlayerIndex(row: number, column: number) {
-    return this.state.boardContent[row][column];
+  private isOccupied(square: Square) {
+    return this.state.boardContent[square.row][square.column] !== 0;
   }
 
-  private setOccupyingPlayerIndex(row: number, column: number) {
-    this.state.boardContent[row][column] = this.state.currentPlayerIndex;
+  private getOccupyingPlayer(square: Square): Player | null {
+    if (!this.isOccupied(square)) {
+      return null;
+    }
+
+    return this.getPlayerById(this.state.boardContent[square.row][square.column]);
+  }
+
+  private getPlayerById(id: number): Player {
+    return this.players[id-1]
+  }
+
+  private setOccupyingPlayer(square: Square, player: Player): void {
+    this.state.boardContent[square.row][square.column] = player.id
   }
 }
