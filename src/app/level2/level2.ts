@@ -3,14 +3,17 @@ import { setThrowInvalidWriteToSignalError } from '@angular/core/primitives/sign
 import { GameState } from './game-state.model';
 import { GameStateService } from '../game-state-service';
 
+type PlayerID = number;
+type PlayerName = string;
+
 export interface Square {
   row: number,
   column: number,
 }
 
 export interface Player {
-  id: number,
-  name: string,
+  id: PlayerID,
+  name: PlayerName,
 }
 
 @Component({
@@ -40,16 +43,6 @@ export class Level2 implements OnInit {
     this.gameStateService.saveState(this.state);
   }
 
-  public getPlayerName(square: Square): string {
-    const nameOrNull = this.getOccupyingPlayer(square)?.name
-
-    if (nameOrNull === undefined) {
-      return ''
-    }
-
-    return nameOrNull;
-  }
-
   public getClassName(square: Square): string {
     if (this.getOccupyingPlayer(square) === null) {
       return ''
@@ -72,7 +65,11 @@ export class Level2 implements OnInit {
     this.gameStateService.saveState(this.state);
   }
 
-  public getWinnerPlayerName(): string | undefined {
+  public getPlayerName(square: Square): PlayerName | undefined {
+    return this.getOccupyingPlayer(square)?.name
+  }
+
+  public getWinnerPlayerName(): PlayerName | undefined {
     return this.getWinningPlayer()?.name;
   }
 
@@ -156,8 +153,8 @@ export class Level2 implements OnInit {
     this.state.currentPlayerIndex = this.state.currentPlayerIndex === 1 ? 2 : 1;
   }
 
-  private getPlayerById(id: number): Player {
-    return this.players[id-1]
+  private getPlayerById(id: PlayerID): Player {
+    return this.players[id - 1]
   }
 
   private setOccupyingPlayer(square: Square, player: Player): void {
