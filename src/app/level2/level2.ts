@@ -23,7 +23,6 @@ export interface Player {
   styleUrl: './level2.css'
 })
 export class Level2 implements OnInit {
-  private playerNames = ['', 'X', 'O'];
   private state!: GameState;
   private players: Player[];
 
@@ -51,7 +50,7 @@ export class Level2 implements OnInit {
     return `occupied-${this.getPlayerName(square)}`
   }
 
-  public set(square: Square): void {
+  public makeMove(square: Square): void {
     if (this.hasWinner()) {
       return
     }
